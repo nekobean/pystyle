@@ -7,74 +7,97 @@
 import face_recognition
 import matplotlib.pyplot as plt
 
-# 保存されている人物の顔の画像を読み込む。
-known_face_imgs = []
-for path in ["known-face_01.png", "known-face_02.png", "known-face_03.png"]:
-    img = face_recognition.load_image_file(path)
-    known_face_imgs.append(img)
-
-# 認証する人物の顔の画像を読み込む。
-face_img_to_check = face_recognition.load_image_file("face_to_check.png")
+# 画像を読み込む。
+img = face_recognition.load_image_file("sample.png")
 
 
 # In[2]:
 
 
-# 顔の画像から顔の領域を検出する。
-known_face_locs = []
-for img in known_face_imgs:
-    loc = face_recognition.face_locations(img, model="cnn")
-    known_face_locs.append(loc)
-
-face_loc_to_check = face_recognition.face_locations(face_img_to_check, model="cnn")
+# 画像から顔の領域を検出する。
+face_locs = face_recognition.face_locations(img, model="cnn")
 
 
 # In[3]:
 
 
-def draw_face_locations(img, locations):
-    fig, ax = plt.subplots()
-    ax.imshow(img)
-    ax.set_axis_off()
-    for i, (top, right, bottom, left) in enumerate(locations):
-        # 長方形を描画する。
-        w, h = right - left, bottom - top
-        ax.add_patch(plt.Rectangle((left, top), w, h, ec="r", lw=2, fill=None))
-    plt.show()
+from PIL import ImageDraw, Image
+from IPython.display import display
+
+def draw_faces(img, locs):
+    img = Image.fromarray(img)
+    draw = ImageDraw.Draw(img, mode="RGBA")
+
+    for top, right, bottom, left in locs:
+        draw.rectangle((left, top, right, bottom), outline="lime", width=2)
+
+    display(img)
 
 
-for img, loc in zip(known_face_imgs, known_face_locs):
-    draw_face_locations(img, loc)
-    
-draw_face_locations(face_img_to_check, face_loc_to_check)
+draw_faces(img, face_locs)
 
 
 # In[4]:
 
 
-# 顔の領域から特徴量を抽出する。
-known_face_encodings = []
-for img, loc in zip(known_face_imgs, known_face_locs):
-    (encoding,) = face_recognition.face_encodings(img, loc)
-    known_face_encodings.append(encoding)
+import face_recognition
+import matplotlib.patches as mpatches
+import matplotlib.pyplot as plt
+import numpy as np
 
-(face_encoding_to_check,) = face_recognition.face_encodings(
-    face_img_to_check, face_loc_to_check
-)
+# 画像を読み込む。
+img = face_recognition.load_image_file("sample2.png")
+
+# HOG 特徴量を使った顔検出
+locs = face_recognition.face_locations(img, model="hog")
+draw_faces(img, locs)
+
+# CNN を使った顔検出
+locs = face_recognition.face_locations(img, model="cnn")
+draw_faces(img, locs)
 
 
 # In[5]:
 
 
-matches = face_recognition.compare_faces(known_face_encodings, face_encoding_to_check)
-print(matches)  # [True, False, False]
+from pprint import pprint
 
+import face_recognition
+import matplotlib.pyplot as plt
+import numpy as np
 
-# In[6]:
+# 画像を読み込む。
+img = face_recognition.load_image_file("sample3.png")
 
+# 画像から顔の領域を検出する。
+face_locs = face_recognition.face_locations(img, model="cnn")
 
-dists = face_recognition.face_distance(known_face_encodings, face_encoding_to_check)
-print(dists)
+# 顔の各部位を検出する。
+facial_landmarks = face_recognition.face_landmarks(img, face_locs)
+#pprint(facial_landmarks)
+
+# 日本語訳
+jp_names = {'nose_bridge': '鼻筋',
+            'nose_tip': '鼻先',
+            'top_lip': '上唇',
+            'bottom_lip': '下唇',
+            'left_eye': '左目',
+            'right_eye': '左目',
+            'left_eyebrow': '左眉毛',
+            'right_eyebrow': '右眉毛',
+            'chin': '下顎'}
+
+# 可視化する。
+fig, ax = plt.subplots(figsize=(7, 7))
+ax.imshow(img)
+ax.set_axis_off()
+for face in facial_landmarks:
+    for name, points in face.items():
+        points = np.array(points)
+        ax.plot(points[:, 0], points[:, 1], 'o-', ms=3, label=jp_names[name])
+ax.legend(fontsize=14)
+
+plt.show()
 
 
 # In[ ]:
