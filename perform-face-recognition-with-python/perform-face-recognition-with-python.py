@@ -1,9 +1,3 @@
-#!/usr/bin/env python
-# coding: utf-8
-
-# In[1]:
-
-
 import face_recognition
 import matplotlib.pyplot as plt
 
@@ -16,28 +10,21 @@ for path in ["known-face_01.png", "known-face_02.png", "known-face_03.png"]:
 # 認証する人物の顔の画像を読み込む。
 face_img_to_check = face_recognition.load_image_file("face_to_check.png")
 
-
-# In[2]:
-
-
 # 顔の画像から顔の領域を検出する。
 known_face_locs = []
 for img in known_face_imgs:
-    loc = face_recognition.face_locations(img, model="cnn")
+    loc = face_recognition.face_locations(img, model="hog")
     known_face_locs.append(loc)
 
-face_loc_to_check = face_recognition.face_locations(face_img_to_check, model="cnn")
+face_loc_to_check = face_recognition.face_locations(face_img_to_check, model="hog")
 
 
-# In[3]:
-
-
+# 検出した顔の位置を画像に描画する。
 def draw_face_locations(img, locations):
     fig, ax = plt.subplots()
     ax.imshow(img)
     ax.set_axis_off()
     for i, (top, right, bottom, left) in enumerate(locations):
-        # 長方形を描画する。
         w, h = right - left, bottom - top
         ax.add_patch(plt.Rectangle((left, top), w, h, ec="r", lw=2, fill=None))
     plt.show()
@@ -45,12 +32,8 @@ def draw_face_locations(img, locations):
 
 for img, loc in zip(known_face_imgs, known_face_locs):
     draw_face_locations(img, loc)
-    
+
 draw_face_locations(face_img_to_check, face_loc_to_check)
-
-
-# In[4]:
-
 
 # 顔の領域から特徴量を抽出する。
 known_face_encodings = []
@@ -62,23 +45,10 @@ for img, loc in zip(known_face_imgs, known_face_locs):
     face_img_to_check, face_loc_to_check
 )
 
-
-# In[5]:
-
-
+# 抽出した特徴量を元にマッチングを行う。
 matches = face_recognition.compare_faces(known_face_encodings, face_encoding_to_check)
 print(matches)  # [True, False, False]
 
-
-# In[6]:
-
-
+# 各画像との近似度を表示する。
 dists = face_recognition.face_distance(known_face_encodings, face_encoding_to_check)
 print(dists)
-
-
-# In[ ]:
-
-
-
-
