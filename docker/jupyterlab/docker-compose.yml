@@ -4,8 +4,8 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    image: jupyterlab:3.10.0
-    container_name: jupyterlab2
+    image: jupyterlab:3.9.7
+    container_name: jupyterlab
     restart: always
     ports:
-      - 8000:8888
+      - 8888:8888
