@@ -9,3 +9,8 @@ services:
     restart: always
     ports:
       - 8888:8888
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - capabilities: [gpu]
