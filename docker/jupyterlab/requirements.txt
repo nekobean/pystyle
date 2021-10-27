@@ -1,12 +1,12 @@
 pip
 wheel
 jupyterlab
-beautifulsoup4
+jupyterlab_code_formatter
 black
-ipywidgets
 isort
 jupyterlab_tabnine
-jupyterlab_code_formatter
+ipywidgets
+beautifulsoup4
 lxml
 matplotlib
 more-itertools
