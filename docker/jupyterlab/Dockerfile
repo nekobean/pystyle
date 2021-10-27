@@ -49,10 +49,10 @@ COPY requirements.txt .
 RUN eval "$(pyenv init --path)" && \
     cat requirements.txt | xargs -n 1 pip install -U --no-cache-dir && \
     jupyter notebook --generate-config -y && \
+    # fix issue about black https://github.com/psf/black/issues/1143
+    mkdir -p /root/.cache/black/21.9b0/ && \
     rm requirements.txt
 COPY jupyter_lab_config.py /root/.jupyter/
-# fix issue about black https://github.com/psf/black/issues/1143
-RUN mkdir -p /root/.cache/black/21.9b0/
 
 EXPOSE 8888
 CMD eval "$(pyenv init --path)" && jupyter lab
