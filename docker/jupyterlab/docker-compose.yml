@@ -1,0 +1,11 @@
+version: '3'
+services:
+  jupyterlab:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: jupyterlab:3.10.0
+    container_name: jupyterlab2
+    restart: always
+    ports:
+      - 8000:8888
