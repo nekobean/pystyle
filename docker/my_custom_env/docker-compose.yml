@@ -1,0 +1,19 @@
+version: '3'
+services:
+  jupyterlab:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: "jupyterlab:main"
+    container_name: jupyterlab_main
+    restart: always
+    ports:
+      - "8000:8888"
+      - "2223:22"
+    volumes:
+      - /data:/data
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - capabilities: [gpu]
