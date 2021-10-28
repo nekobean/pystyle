@@ -8,7 +8,7 @@ services:
     container_name: jupyterlab_main
     restart: always
     ports:
-      - "8000:8888"
+      - "8889:8888"
       - "2223:22"
     volumes:
       - /data:/data
