@@ -4,6 +4,7 @@ LABEL maintainer "pystyle"
 ENV LC_ALL C.UTF-8
 ENV PATH "/root/.pyenv/bin:${PATH}"
 ARG PYTHON_VERSION="3.9.7"
+WORKDIR /root
 
 # Install requirements
 RUN apt-get update && \
@@ -56,17 +57,16 @@ RUN git clone https://github.com/pyenv/pyenv.git ~/.pyenv && \
     pyenv global $PYTHON_VERSION
 
 # Install JupyterLab
-WORKDIR /notebook
 COPY requirements.txt .
 RUN eval "$(pyenv init --path)" && \
     cat requirements.txt | xargs -n 1 pip install -U --no-cache-dir && \
-    jupyter notebook --generate-config -y && \
     ipython profile create && \
     # fix issue about black https://github.com/psf/black/issues/1143
     mkdir -p /root/.cache/black/21.9b0/ && \
     rm requirements.txt
-COPY jupyter_lab_config.py /root/.jupyter/
+COPY .jupyter/ /root/.jupyter/
 COPY ipython_kernel_config.py /root/.ipython/profile_default/
+COPY .bashrc /root/
 
 EXPOSE 22 8888
 CMD eval "$(pyenv init --path)" && service ssh start && jupyter lab
