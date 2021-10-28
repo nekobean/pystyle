@@ -1,0 +1,11 @@
+version: '3'
+services:
+  ssh_pubkey:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: ssh_pubkey
+    container_name: ssh_pubkey
+    ports:
+      - "30000:22"
+    tty: true

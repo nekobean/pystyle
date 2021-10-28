@@ -4,13 +4,14 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    image: jupyterlab_dl:3.9.7
+    image: "jupyterlab_dl:3.9.7"
     container_name: jupyterlab_dl
     restart: always
     ports:
-      - 8888:8888
+      - "8888:8888"
     deploy:
       resources:
         reservations:
           devices:
             - capabilities: [gpu]
+    tty: true

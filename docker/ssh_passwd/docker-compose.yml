@@ -1,0 +1,11 @@
+version: '3'
+services:
+  ssh_passwd:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: ssh_passwd
+    container_name: ssh_passwd
+    ports:
+      - "30000:22"
+    tty: true
