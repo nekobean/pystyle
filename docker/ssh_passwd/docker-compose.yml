@@ -7,5 +7,5 @@ services:
     image: ssh_passwd
     container_name: ssh_passwd
     ports:
-      - "30000:22"
+      - "2222:22"
     tty: true
