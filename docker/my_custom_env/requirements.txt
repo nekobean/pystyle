@@ -4,7 +4,6 @@ jupyterlab
 jupyterlab_code_formatter
 black
 isort
-jupyterlab_tabnine
 ipywidgets
 beautifulsoup4
 lxml
