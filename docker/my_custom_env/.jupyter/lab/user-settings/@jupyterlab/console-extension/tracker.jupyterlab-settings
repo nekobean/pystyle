@@ -1,0 +1,7 @@
+{
+    "promptCellConfig": {
+        "autoClosingBrackets": true,
+        "wordWrapColumn": 80,
+        "rulers": [88],
+    }
+}

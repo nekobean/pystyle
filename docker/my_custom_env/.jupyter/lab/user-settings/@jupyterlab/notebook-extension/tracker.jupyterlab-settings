@@ -1,0 +1,16 @@
+{
+    "codeCellConfig": {
+        "autoClosingBrackets": true,
+        "rulers": [88],
+    },
+
+    "markdownCellConfig": {
+        "autoClosingBrackets": true,
+        "rulers": [88],
+    },
+
+    "rawCellConfig": {
+        "autoClosingBrackets": true,
+        "rulers": [88],
+    }
+}
