@@ -29,6 +29,7 @@ RUN apt-get update && \
     wget \
     xz-utils \
     zlib1g-dev \
+    cmake \
     # git clone need CA certificates
     ca-certificates \
     # OpenCV need libGL.so.1
@@ -68,5 +69,5 @@ COPY .jupyter/ /root/.jupyter/
 COPY ipython_kernel_config.py /root/.ipython/profile_default/
 COPY .bashrc /root/
 
-EXPOSE 22 8888
+EXPOSE 22 8888 6006
 CMD eval "$(pyenv init --path)" && service ssh start && jupyter lab
