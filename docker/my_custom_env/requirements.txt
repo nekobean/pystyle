@@ -26,7 +26,8 @@ seaborn
 statsmodels
 sympy
 tabulate
-torch
-torchaudio
-torchvision
+torch==1.10.2+cu113
+torchaudio==0.10.2+cu113
+torchvision==0.11.3+cu113
 tqdm
+nbconvert==5.6.1

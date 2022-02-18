@@ -1,15 +1,13 @@
 version: '3'
 services:
   jupyterlab:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    image: "jupyterlab:main"
-    container_name: jupyterlab_main
+    build: "./"
+    image: "jupyterlab:3.9.10"
+    container_name: jupyterlab
     restart: always
     ports:
-      - "8889:8888"
-      - "2223:22"
+      - "8888:8888"
+      - "2222:22"
       - "6006:6006"
     volumes:
       - /data:/data
@@ -19,4 +17,5 @@ services:
           devices:
             - capabilities: [gpu]
     privileged: true
-    shm_size: '8gb'
+    shm_size: "8gb"
+    tty: true

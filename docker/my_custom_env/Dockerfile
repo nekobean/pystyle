@@ -1,10 +1,9 @@
-FROM nvidia/cuda:10.2-cudnn7-devel-ubuntu18.04
+FROM nvidia/cuda:11.3.1-cudnn8-devel-ubuntu20.04
 LABEL maintainer "pystyle"
 
-ENV LC_ALL C.UTF-8
-ENV PATH "/root/.pyenv/bin:${PATH}"
-ARG PYTHON_VERSION="3.9.7"
-WORKDIR /root
+ARG DOCKER_UID=1000
+ARG DOCKER_USER=papillon
+ARG DOCKER_PASSWORD=root
 
 # Install requirements
 RUN apt-get update && \
@@ -12,7 +11,6 @@ RUN apt-get update && \
     # pyenv requirements: https://github.com/pyenv/pyenv/wiki#suggested-build-environment
     build-essential \
     curl \
-    git \
     libbz2-dev \
     libffi-dev \
     liblzma-dev \
@@ -29,45 +27,52 @@ RUN apt-get update && \
     wget \
     xz-utils \
     zlib1g-dev \
-    cmake \
-    # git clone need CA certificates
+    # ca-certificates: git
+    # libgl1: OpenCV
     ca-certificates \
-    # OpenCV need libGL.so.1
-    libgl1
+    cmake \
+    git \
+    language-pack-ja \
+    #libgl1 \
+    sudo
 
 # Install SSH server
 RUN apt-get install -y --no-install-recommends openssh-server && \
-    echo "root:root" | chpasswd && \
-    sed -i "s/#PermitRootLogin prohibit-password/PermitRootLogin yes/" /etc/ssh/sshd_config && \
     sed -i "s/#PubkeyAuthentication yes/PubkeyAuthentication yes/" /etc/ssh/sshd_config
-
-# Register public key
-ADD id_rsa.pub /root/.ssh/
-RUN mv /root/.ssh/id_rsa.pub /root/.ssh/authorized_keys && \
-    chmod 700 /root/.ssh && \
-    chmod 600 /root/.ssh/authorized_keys
 
 # Install nodejs for JupyterLab extension
 RUN curl -sL https://deb.nodesource.com/setup_current.x | bash - && \
     apt-get install -y --no-install-recommends nodejs && \
     rm -rf /var/lib/apt/lists/*
 
+# Create user
+RUN useradd -m -u ${DOCKER_UID} -G sudo ${DOCKER_USER} -s /bin/bash && \
+    echo ${DOCKER_USER}:${DOCKER_PASSWORD} | chpasswd && \
+    echo '%sudo ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
+USER $DOCKER_UID
+ENV HOME /home/${DOCKER_USER}
+WORKDIR ${HOME}
+
 # Install pyenv and python 3
-RUN git clone https://github.com/pyenv/pyenv.git ~/.pyenv && \
+ARG PYTHON_VERSION="3.9.10"
+ENV PATH "${HOME}/.pyenv/bin:${PATH}"
+RUN git clone https://github.com/pyenv/pyenv.git ${HOME}/.pyenv && \
     pyenv install $PYTHON_VERSION && \
     pyenv global $PYTHON_VERSION
 
 # Install JupyterLab
-COPY requirements.txt .
+COPY --chown=${DOCKER_USER}:${DOCKER_USER} requirements.txt ./
 RUN eval "$(pyenv init --path)" && \
-    cat requirements.txt | xargs -n 1 pip install -U --no-cache-dir && \
-    ipython profile create && \
-    # fix issue about black https://github.com/psf/black/issues/1143
-    mkdir -p /root/.cache/black/21.9b0/ && \
+    cat requirements.txt | xargs -n 1 pip install -U --no-cache-dir -f https://download.pytorch.org/whl/cu113/torch_stable.html && \
     rm requirements.txt
-COPY .jupyter/ /root/.jupyter/
-COPY ipython_kernel_config.py /root/.ipython/profile_default/
-COPY .bashrc /root/
+
+COPY --chown=${DOCKER_USER}:${DOCKER_USER} id_rsa.pub ${HOME}/.ssh/
+RUN mv ${HOME}/.ssh/id_rsa.pub ${HOME}/.ssh/authorized_keys && \
+    chmod 700 ${HOME}/.ssh && \
+    chmod 600 ${HOME}/.ssh/authorized_keys
+
+COPY --chown=${DOCKER_USER}:${DOCKER_USER} .bashrc ${HOME}/
+COPY --chown=${DOCKER_USER}:${DOCKER_USER} .jupyter/ ${HOME}/.jupyter/
 
 EXPOSE 22 8888 6006
-CMD eval "$(pyenv init --path)" && service ssh start && jupyter lab
+CMD eval "$(pyenv init --path)" && sudo service ssh start && jupyter lab
